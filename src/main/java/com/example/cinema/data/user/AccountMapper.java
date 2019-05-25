@@ -1,12 +1,13 @@
 package com.example.cinema.data.user;
 
 import com.example.cinema.po.User;
+import com.example.cinema.vo.UserForm;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * @author huwen
- * @date 2019/3/23
+ * @author hxw
+ * @date 2019/5/19
  */
 @Mapper
 public interface AccountMapper {
@@ -17,7 +18,7 @@ public interface AccountMapper {
      * @param password
      * @return
      */
-    public int createNewAccount(@Param("username") String username, @Param("password") String password);
+    public int createNewAccount(@Param("username") String username, @Param("password") String password, @Param("auth") Integer auth);
 
     /**
      * 根据用户名查找账号
@@ -25,4 +26,11 @@ public interface AccountMapper {
      * @return
      */
     public User getAccountByName(@Param("username") String username);
+
+    /**
+     * 更新密码
+     * @param userForm
+     * @return
+     */
+    public int updatePassword(@Param("userForm") UserForm userForm);
 }

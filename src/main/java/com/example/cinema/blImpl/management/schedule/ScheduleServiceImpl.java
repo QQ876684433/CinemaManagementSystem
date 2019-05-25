@@ -3,6 +3,7 @@ import java.util.Date;
 
 import com.example.cinema.bl.management.ScheduleService;
 import com.example.cinema.blImpl.management.hall.HallServiceForBl;
+import com.example.cinema.blImpl.management.movie.MovieServiceForBl;
 import com.example.cinema.data.management.ScheduleMapper;
 import com.example.cinema.po.Movie;
 import com.example.cinema.po.ScheduleItem;
@@ -149,6 +150,11 @@ public class ScheduleServiceImpl implements ScheduleService, ScheduleServiceForB
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public List<Integer> getScheduledHalls() {
+        return scheduleMapper.getHallsInSchedules();
     }
 
     @Override

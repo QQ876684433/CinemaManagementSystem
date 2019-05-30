@@ -1,29 +1,44 @@
+var cardTypes = [];
+var isBuyState = true;
+var vipCardId = 0;
+
+
 $(document).ready(function () {
     getVIP();
     getCoupon();
+
+    $("#card-list").on('click','button[id^="card-buy"]',function () {
+        if (vipCardId !== 0 && !confirm("确定重新购买会员卡吗？余额将按8折计入新会员卡")){
+            return;
+        }
+        clearForm();
+        $('#buyModal')[0].dataset.cardId = $(this).attr('id').replace('card-buy','');
+        $('#buyModal').modal('show');
+        $("#userMember-amount-group").css("display", "none");
+        $("#myModalLabel").text("购买会员卡");
+        isBuyState = true;
+    })
 });
 
-var isBuyState = true;
-var vipCardId;
 
 function getVIP() {
     getRequest(
-        '/vip/' + sessionStorage.getItem('id') + '/get',
+        '/vip/get/' + sessionStorage.getItem('id'),
         function (res) {
             if (res.success) {
                 // 是会员
                 $("#member-card").css("visibility", "visible");
                 $("#member-card").css("display", "");
-                $("#nonmember-card").css("display", "none");
 
                 vipCardId = res.content.id;
-                $("#member-id").text(res.content.id);
                 $("#member-balance").text("¥" + res.content.balance.toFixed(2));
                 $("#member-joinDate").text(res.content.joinDate.substring(0, 10));
+                $("#member-expireDate").text("永久有效");
+                $("#member-topUp").text("满" + res.content.cardType.topUpTarget + "送" + res.content.cardType.topUpDiscount);
+                $("#member-ticketBuy").text("满" + res.content.cardType.ticketTarget + "减" + res.content.cardType.ticketDiscount);
             } else {
                 // 非会员
                 $("#member-card").css("display", "none");
-                $("#nonmember-card").css("display", "");
             }
         },
         function (error) {
@@ -31,12 +46,25 @@ function getVIP() {
         });
 
     getRequest(
-        '/vip/getVIPInfo',
+        '/card/get',
         function (res) {
             if (res.success) {
-                $("#member-buy-price").text(res.content.price);
-                $("#member-buy-description").text("充值优惠：" + res.content.description + "。永久有效");
-                $("#member-description").text(res.content.description);
+                $("#card-list").empty();
+
+                cardTypes = res.content;
+                var cardsDomStr = "";
+                for (var i=0;i<cardTypes.length;i++){
+                    cardsDomStr+=
+                        "<div class='info'>" +
+                        "    <div class='price'><b id='member-buy-price'>" + cardTypes[i].price + "</b>元/张</div>" +
+                        "    <div id='member-buy-description' class='description'><b>" + cardTypes[i].name + "：</b>" + cardTypes[i].description +"</div>" +
+                        "    <div id='member-buy-top-up' class='description'><b>" + "充值优惠：</b>满" + cardTypes[i].topUpTarget+ "送" + cardTypes[i].topUpDiscount + "</div>" +
+                        "    <div id='member-buy-ticket' class='description'><b>" + "购票优惠：</b>满" + cardTypes[i].ticketTarget+ "减" + cardTypes[i].ticketDiscount + "</div>" +
+                        "    <button id='card-buy"+ i +"'>立即购买</button>" +
+                        "</div>";
+                }
+
+                $("#card-list").append(cardsDomStr);
             } else {
                 alert(res.content);
             }
@@ -47,17 +75,12 @@ function getVIP() {
         });
 }
 
-function buyClick() {
-    clearForm();
-    $('#buyModal').modal('show')
-    $("#userMember-amount-group").css("display", "none");
-    isBuyState = true;
-}
 
 function chargeClick() {
     clearForm();
     $('#buyModal').modal('show')
     $("#userMember-amount-group").css("display", "");
+    $("#myModalLabel").text("充值会员卡");
     isBuyState = false;
 }
 
@@ -71,17 +94,31 @@ function confirmCommit() {
     if (validateForm()) {
         if ($('#userMember-cardNum').val() === "123123123" && $('#userMember-cardPwd').val() === "123123") {
             if (isBuyState) {
-                postRequest(
-                    '/vip/add?userId=' + sessionStorage.getItem('id'),
-                    null,
-                    function (res) {
-                        $('#buyModal').modal('hide');
-                        alert("购买会员卡成功");
-                        getVIP();
-                    },
-                    function (error) {
-                        alert(error);
-                    });
+                if (vipCardId === 0){
+                    postRequest(
+                        '/vip/add/' + sessionStorage.getItem('id') + "/" + cardTypes[parseInt($('#buyModal')[0].dataset.cardId)].id,
+                        null,
+                        function (res) {
+                            $('#buyModal').modal('hide');
+                            alert("购买会员卡成功");
+                            getVIP();
+                        },
+                        function (error) {
+                            alert(error);
+                        });
+                } else {
+                    postRequest(
+                        '/vip/change/' + vipCardId + "/" + cardTypes[parseInt($('#buyModal')[0].dataset.cardId)].id,
+                        null,
+                        function (res) {
+                            $('#buyModal').modal('hide');
+                            alert("切换会员卡成功");
+                            getVIP();
+                        },
+                        function (error) {
+                            alert(error);
+                        });
+                }
             } else {
                 postRequest(
                     '/vip/charge',

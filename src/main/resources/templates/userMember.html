@@ -35,6 +35,9 @@
             <span class="gray-text" style="vertical-align: middle" th:text="${session.user.username}"><span class="caret"></span></span>
         </button>
         <ul class="dropdown-menu">
+            <li><a href="/user/history/consume">消费记录</a></li>
+            <li><a href="/user/history/topup">充值记录</a></li>
+            <li><a href="/user/edit">修改密码</a></li>
             <li><a href="/user/buy">电影票</a></li>
             <li><a href="#">卡包</a></li>
             <li id="logout"><a href="#">登出</a></li>
@@ -42,23 +45,6 @@
     </div>
 </div>
 <div class="content-container">
-    <!--非会员-->
-    <div class="card col-md-8 col-md-offset-2" id="nonmember-card" style="display: none;">
-        <div class="header">
-            <div class="title">会员卡</div>
-            <div class="state">非会员</div>
-        </div>
-        <div class="line">
-            <div>成为VIP会员</div>
-            <hr/>
-        </div>
-        <div class="info">
-            <div class="price"><b id="member-buy-price"></b>元/张</div>
-            <div id="member-buy-description" class="description"></div>
-            <button onclick="buyClick()">立即购买</button>
-        </div>
-    </div>
-
     <!--会员-->
     <div class="card col-md-8 col-md-offset-2" id="member-card" style="visibility: hidden;">
         <div class="header">
@@ -72,16 +58,20 @@
         <div class="info">
             <div class="content">
                 <div class="line">
-                    <div><b>会员卡号：</b></div>
-                    <div id="member-id"></div>
-                </div>
-                <div class="line">
                     <div><b>入会日期：</b></div>
                     <div id="member-joinDate"></div>
                 </div>
                 <div class="line">
+                    <div><b>到期日期：</b></div>
+                    <div id="member-expireDate"></div>
+                </div>
+                <div class="line">
                     <div><b>充值优惠：</b></div>
-                    <div id="member-description"></div>
+                    <div id="member-topUp"></div>
+                </div>
+                <div class="line">
+                    <div><b>购票优惠：</b></div>
+                    <div id="member-ticketBuy"></div>
                 </div>
 
                 <hr/>
@@ -93,6 +83,19 @@
             </div>
             <button onclick="chargeClick()">立即充值</button>
         </div>
+    </div>
+
+    <!--非会员-->
+    <div class="card col-md-8 col-md-offset-2" id="nonmember-card">
+        <div class="header">
+            <div class="title">会员卡</div>
+            <div class="state">非会员</div>
+        </div>
+        <div class="line">
+            <div>成为VIP会员</div>
+            <hr/>
+        </div>
+        <div id="card-list"></div>
     </div>
 
     <!--优惠券-->

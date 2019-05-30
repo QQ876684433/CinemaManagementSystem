@@ -1,26 +1,44 @@
-package com.example.cinema.blImpl.promotion;
+package com.example.cinema.blImpl.promotion.coupon;
 
+import com.example.cinema.bl.consume.ConsumeService;
 import com.example.cinema.bl.promotion.CouponService;
 import com.example.cinema.data.promotion.CouponMapper;
 import com.example.cinema.po.Coupon;
+import com.example.cinema.po.User;
 import com.example.cinema.vo.CouponForm;
+import com.example.cinema.vo.PresentForm;
 import com.example.cinema.vo.ResponseVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 /**
  * Created by liying on 2019/4/17.
  */
 @Service
-public class CouponServiceImpl implements CouponService,CouponServiceForBl {
+public class CouponServiceImpl implements CouponService, CouponServiceForBl {
 
     @Autowired
     CouponMapper couponMapper;
+
+    @Autowired
+    ConsumeService consumeService;
 
     @Override
     public ResponseVO getCouponsByUser(int userId) {
         try {
             return ResponseVO.buildSuccess(couponMapper.selectCouponByUser(userId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseVO.buildFailure("失败");
+        }
+    }
+
+    @Override
+    public ResponseVO getAllCoupons() {
+        try {
+            return ResponseVO.buildSuccess(couponMapper.selectAllCoupons());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseVO.buildFailure("失败");
@@ -61,6 +79,31 @@ public class CouponServiceImpl implements CouponService,CouponServiceForBl {
     public ResponseVO getCoupon(int couponId) {
         try {
             return ResponseVO.buildSuccess(couponMapper.selectById(couponId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseVO.buildFailure("失败");
+        }
+    }
+
+    @Override
+    public ResponseVO getUsersByConsume(double totalConsume) {
+        try {
+            return consumeService.getConsumeQualifiedUsers(totalConsume);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseVO.buildFailure("失败");
+        }
+    }
+
+    @Override
+    public ResponseVO presentCoupon2User(PresentForm presentForm) {
+        try {
+            for (int couponId:presentForm.getCouponIds()){
+                for (int userId:presentForm.getUserIds()){
+                    couponMapper.insertCouponUser(couponId,userId);
+                }
+            }
+            return ResponseVO.buildSuccess();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseVO.buildFailure("失败");

@@ -11,15 +11,13 @@ import com.example.cinema.vo.ResponseVO;
 
 public interface VIPService {
 
-    ResponseVO addVIPCard(int userId);
+    ResponseVO addVIPCard(int userId, int cardTypeId);
 
     ResponseVO getCardById(int id);
-
-    ResponseVO getVIPInfo();
 
     ResponseVO charge(VIPCardForm vipCardForm);
 
     ResponseVO getCardByUserId(int userId);
 
-
+    ResponseVO changeVIPCard(int cardId, int cardTypeId);
 }

@@ -15,18 +15,14 @@ public class VIPCardController {
     @Autowired
     VIPService vipService;
 
-    @PostMapping("/add")
-    public ResponseVO addVIP(@RequestParam int userId){
-        return vipService.addVIPCard(userId);
-    }
-    @GetMapping("{userId}/get")
-    public ResponseVO getVIP(@PathVariable int userId){
-        return vipService.getCardByUserId(userId);
+    @PostMapping("/add/{userId}/{cardTypeId}")
+    public ResponseVO addVIP(@PathVariable int userId, @PathVariable int cardTypeId){
+        return vipService.addVIPCard(userId, cardTypeId);
     }
 
-    @GetMapping("/getVIPInfo")
-    public ResponseVO getVIPInfo(){
-        return vipService.getVIPInfo();
+    @GetMapping("/get/{userId}")
+    public ResponseVO getVIP(@PathVariable int userId){
+        return vipService.getCardByUserId(userId);
     }
 
     @PostMapping("/charge")
@@ -34,7 +30,10 @@ public class VIPCardController {
         return vipService.charge(vipCardForm);
     }
 
-
+    @PostMapping("/change/{cardId}/{cardTypeId}")
+    public ResponseVO deleteVIP(@PathVariable int cardId, @PathVariable int cardTypeId){
+        return vipService.changeVIPCard(cardId, cardTypeId);
+    }
 
 
 }
